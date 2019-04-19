@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package xyz
+package datadog
 
 import (
 	"unicode"
@@ -22,13 +22,13 @@ import (
 	"github.com/pulumi/pulumi-terraform/pkg/tfbridge"
 	"github.com/pulumi/pulumi/pkg/resource"
 	"github.com/pulumi/pulumi/pkg/tokens"
-	"github.com/terraform-providers/terraform-provider-xyz/xyz"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 )
 
 // all of the token components used below.
 const (
 	// packages:
-	mainPkg = "xyz"
+	mainPkg = "datadog"
 	// modules:
 	mainMod = "index" // the y module
 )
@@ -43,34 +43,12 @@ func makeType(mod string, typ string) tokens.Type {
 	return tokens.Type(makeMember(mod, typ))
 }
 
-// makeDataSource manufactures a standard resource token given a module and resource name.  It
-// automatically uses the main package and names the file by simply lower casing the data source's
-// first character.
-func makeDataSource(mod string, res string) tokens.ModuleMember {
-	fn := string(unicode.ToLower(rune(res[0]))) + res[1:]
-	return makeMember(mod+"/"+fn, res)
-}
-
 // makeResource manufactures a standard resource token given a module and resource name.  It
 // automatically uses the main package and names the file by simply lower casing the resource's
 // first character.
 func makeResource(mod string, res string) tokens.Type {
 	fn := string(unicode.ToLower(rune(res[0]))) + res[1:]
 	return makeType(mod+"/"+fn, res)
-}
-
-// boolRef returns a reference to the bool argument.
-func boolRef(b bool) *bool {
-	return &b
-}
-
-// stringValue gets a string value from a property map if present, else ""
-func stringValue(vars resource.PropertyMap, prop resource.PropertyKey) string {
-	val, ok := vars[prop]
-	if ok && val.IsString() {
-		return val.StringValue()
-	}
-	return ""
 }
 
 // preConfigureCallback is called before the providerConfigure function of the underlying provider.
@@ -81,47 +59,28 @@ func preConfigureCallback(vars resource.PropertyMap, c *terraform.ResourceConfig
 	return nil
 }
 
-// managedByPulumi is a default used for some managed resources, in the absence of something more meaningful.
-var managedByPulumi = &tfbridge.DefaultInfo{Value: "Managed by Pulumi"}
-
 // Provider returns additional overlaid schema and metadata associated with the provider..
 func Provider() tfbridge.ProviderInfo {
 	// Instantiate the Terraform provider
-	p := xyz.Provider().(*schema.Provider)
+	p := datadog.Provider().(*schema.Provider)
 
 	// Create a Pulumi provider mapping
 	prov := tfbridge.ProviderInfo{
-		P:           p,
-		Name:        "xyz",
-		Description: "A Pulumi package for creating and managing xyz cloud resources.",
-		Keywords:    []string{"pulumi", "xyz"},
-		License:     "Apache-2.0",
-		Homepage:    "https://pulumi.io",
-		Repository:  "https://github.com/pulumi/pulumi-xyz",
-		Config:      map[string]*tfbridge.SchemaInfo{
-			// Add any required configuration here, or remove the example below if
-			// no additional points are required.
-			// "region": {
-			// 	Type: makeType("region", "Region"),
-			// 	Default: &tfbridge.DefaultInfo{
-			// 		EnvVars: []string{"AWS_REGION", "AWS_DEFAULT_REGION"},
-			// 	},
-			// },
-		},
+		P:                    p,
+		Name:                 "datadog",
+		Description:          "A Pulumi package for creating and managing datadog cloud resources.",
+		Keywords:             []string{"pulumi", "datadog"},
+		License:              "Apache-2.0",
+		Homepage:             "https://pulumi.io",
+		Repository:           "https://github.com/pulumi/pulumi-datadog",
+		Config:               map[string]*tfbridge.SchemaInfo{},
 		PreConfigureCallback: preConfigureCallback,
-		Resources:            map[string]*tfbridge.ResourceInfo{
-			// Map each resource in the Terraform provider to a Pulumi type. Two examples
-			// are below - the single line form is the common case. The multi-line form is
-			// needed only if you wish to override types or other default options.
-			//
-			// "aws_iam_role": {Tok: makeResource(mainMod, "IamRole")}
-			//
-			// "aws_acm_certificate": {
-			// 	Tok: makeResource(mainMod, "Certificate"),
-			// 	Fields: map[string]*tfbridge.SchemaInfo{
-			// 		"tags": {Type: makeType(mainPkg, "Tags")},
-			// 	},
-			// },
+		Resources: map[string]*tfbridge.ResourceInfo{
+			"datadog_monitor":         {Tok: makeResource(mainMod, "DatadogMonitor")},
+			"datadog_user":            {Tok: makeResource(mainMod, "DatadogUser")},
+			"datadog_metric_metadata": {Tok: makeResource(mainMod, "DatadogMetricMetadata")},
+			"datadog_downtime":        {Tok: makeResource(mainMod, "DatadogDowntime")},
+			"datadog_screenboard":     {Tok: makeResource(mainMod, "DatadogScreenboard")},
 		},
 		DataSources: map[string]*tfbridge.DataSourceInfo{
 			// Map each resource in the Terraform provider to a Pulumi function. An example

@@ -1,7 +1,7 @@
-PROJECT_NAME := xyz Package
+PROJECT_NAME := datadog Package
 include build/common.mk
 
-PACK             := xyz
+PACK             := datadog
 PACKDIR          := sdk
 PROJECT          := github.com/pulumi/pulumi-${PACK}
 NODE_MODULE_NAME := @pulumi/${PACK}

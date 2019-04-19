@@ -16,6 +16,7 @@ package tests
 
 import (
 	"os"
+	"path"
 	"testing"
 
 	"github.com/pulumi/pulumi/pkg/testing/integration"
@@ -24,10 +25,10 @@ import (
 
 func TestMountTarget(t *testing.T) {
 	// Get configuration from the CI environment
-	configPoint := os.Getenv("XYZ_CONFIG_POINT")
-	if configPoint == "" {
-		t.Skipf("Skipping test due to missing XYZ_CONFIG_POINT environment variable")
-	}
+	// configPoint := os.Getenv("datadog_CONFIG_POINT")
+	// if configPoint == "" {
+	// 	t.Skipf("Skipping test due to missing datadog_CONFIG_POINT environment variable")
+	// }
 	cwd, err := os.Getwd()
 	if !assert.NoError(t, err, "expected a valid working directory: %v", err) {
 		return
@@ -35,28 +36,28 @@ func TestMountTarget(t *testing.T) {
 
 	base := integration.ProgramTestOptions{
 		Config: map[string]string{
-			//"xyz:configPoint": configPoint,
+			//"datadog:configPoint": configPoint,
 		},
 	}
 
 	baseJS := base.With(integration.ProgramTestOptions{
 		Dependencies: []string{
-			"@pulumi/xyz",
+			"@pulumi/datadog",
 		},
 	})
 
 	examples := []integration.ProgramTestOptions{
 		// Each test runs the program referenced in Dir, and then each of EditDirs
 		// runs in turn.
-		//baseJS.With(integration.ProgramTestOptions{
-		//	Dir: path.Join(cwd, "xyz_test", "step1"),
-		//	EditDirs: []integration.EditDir{
-		//		{
-		//			Dir:      "step2",
-		//			Additive: true,
-		//		},
-		//	},
-		//}),
+		baseJS.With(integration.ProgramTestOptions{
+			Dir: path.Join(cwd, "datadog_test", "step1"),
+			EditDirs: []integration.EditDir{
+				{
+					Dir:      "step2",
+					Additive: true,
+				},
+			},
+		}),
 	}
 
 	for _, ex := range examples {
